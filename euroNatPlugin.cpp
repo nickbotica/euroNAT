@@ -7,8 +7,8 @@ euroNatPlugin::euroNatPlugin(void) :
 	EuroScopePlugIn::CPlugIn( 
 		EuroScopePlugIn::COMPATIBILITY_CODE, 
 		"euroNAT",
-		"1.1",
-		"Michael Freudeman",
+		"1.2",
+		"Merik Nanish",
 		"NYARTCC ES euroNAT"
 	)
 {

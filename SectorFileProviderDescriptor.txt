@@ -1,8 +1,8 @@
 NAME:EuroScope main sector file provider
 URL:http://www.euroscope.hu/sectorfile/euroscope_sector_providers.txt
 LOCALFILE:./euroscope_sector_providers.txt
-LASTDOWNLOAD:201010272036
-NEXTDOWNLOAD:201010292036
+LASTDOWNLOAD:201410282128
+NEXTDOWNLOAD:201410302128
 AUTODOWNLOAD:1
 NAME:VATSIM Bulgarian Sector File Provider
 URL:http://vaccbul.avsim-bg.org/ES/VACCBUL_sector_provider.txt
@@ -63,4 +63,48 @@ AUTODOWNLOAD:0
 NAME:Alaska ARTCC Control File
 URL:http://vzanartcc.net/downloads/euroscope/vZAN_sectorfiles.txt
 LOCALFILE:C:\Users\Novacane\Desktop\Code\euroNAT\vZAN_sectorfiles.txt
+AUTODOWNLOAD:0
+NAME:Central & North Africa sector files
+URL:http://vatcaf.flyvatsimafrica.org/euroscopeupdate/VATCAF_Sector_Provider.txt
+LOCALFILE:C:\Users\MH\Documents\Visual Studio 2013\Projects\euroNAT\VATCAF_Sector_Provider.txt
+AUTODOWNLOAD:0
+NAME:VATSIM-UK Euroscope Sector File Provider
+URL:http://www.vatsim-uk.co.uk/files/sector/esad/VATUK_Euroscope_files.txt
+LOCALFILE:C:\Users\MH\Documents\Visual Studio 2013\Projects\euroNAT\VATUK_Euroscope_files.txt
+AUTODOWNLOAD:0
+NAME:VATSIM UAE Sector File Provider
+URL:http://vatme.net/FILES/VATUAE/sector/VATUAE_ES_sector_files.txt
+LOCALFILE:C:\Users\MH\Documents\Visual Studio 2013\Projects\euroNAT\VATUAE_ES_sector_files.txt
+AUTODOWNLOAD:0
+NAME:Latvia vACC Sector File Provider
+URL:http://www.lv-vacc.org/es/EVRR_FIR_sector_file.txt
+LOCALFILE:C:\Users\MH\Documents\Visual Studio 2013\Projects\euroNAT\EVRR_FIR_sector_file.txt
+AUTODOWNLOAD:0
+NAME:TRvACC.Org Turkish Virtual Area Control Center
+URL:http://trvacc.org/es/TRvACC_es_provider.txt
+LOCALFILE:C:\Users\MH\Documents\Visual Studio 2013\Projects\euroNAT\TRvACC_es_provider.txt
+AUTODOWNLOAD:0
+NAME:Vatsim-Scandinavia - Denmark
+URL:http://www.vatsim-scandinavia.org/euroscope/sectorfiles/denmark/EKDK_sector_file.txt
+LOCALFILE:C:\Users\MH\Documents\Visual Studio 2013\Projects\euroNAT\EKDK_sector_file.txt
+AUTODOWNLOAD:0
+NAME:Vatsim-Scandinavia - Norway
+URL:http://www.vatsim-scandinavia.org/euroscope/sectorfiles/norway/ENOR_sector_files.txt
+LOCALFILE:C:\Users\MH\Documents\Visual Studio 2013\Projects\euroNAT\ENOR_sector_files.txt
+AUTODOWNLOAD:0
+NAME:Vatsim-Scandinavia - Sweden
+URL:http://www.vatsim-scandinavia.org/euroscope/sectorfiles/sweden/ESAA_sector_file.txt
+LOCALFILE:C:\Users\MH\Documents\Visual Studio 2013\Projects\euroNAT\ESAA_sector_file.txt
+AUTODOWNLOAD:0
+NAME:VATSIM MIDDLE EAST Euroscope Sector File Provider
+URL:http://vatme.net/files/Sectors/VATME_sector_Provider.txt
+LOCALFILE:C:\Users\MH\Documents\Visual Studio 2013\Projects\euroNAT\VATME_sector_Provider.txt
+AUTODOWNLOAD:0
+NAME:AeroNav GNG Sector File Provider
+URL:http://files.aero-nav.com/AeroNav_sector_provider.txt
+LOCALFILE:C:\Users\MH\Documents\Visual Studio 2013\Projects\euroNAT\AeroNav_sector_provider.txt
+AUTODOWNLOAD:0
+NAME:LECB-LECM-GCCC sectorfiles - Vatsim Spain
+URL:http://www.vatspa.es/sectorfiles/VATSPA FIR sectorfiles.txt
+LOCALFILE:C:\Users\MH\Documents\Visual Studio 2013\Projects\euroNAT\VATSPA FIR sectorfiles.txt
 AUTODOWNLOAD:0

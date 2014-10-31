@@ -64,9 +64,6 @@
     <ClInclude Include="euroNatPlugin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\Program Files (x86)\CsernakGergely\EuroScope\PlugInEnvironment\EuroScopePlugIn.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="euroNatRadarScreen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -83,6 +80,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="wuline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\..\Program Files (x86)\EuroScope\PlugInEnvironment\EuroScopePlugIn.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

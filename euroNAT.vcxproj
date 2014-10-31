@@ -31,6 +31,7 @@
     <CharacterSet>MultiByte</CharacterSet>
     <UseOfMfc>Static</UseOfMfc>
     <PlatformToolset>v120</PlatformToolset>
+    <CLRSupport>false</CLRSupport>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -44,13 +45,15 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Novacane\Desktop\curl-7.21.1\curl-7.21.1\lib;C:\Users\Novacane\Desktop\curl-7.21.1\curl-7.21.1\include;C:\Program Files %28x86%29\CsernakGergely\EuroScope\PlugInEnvironment;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Novacane\Desktop\curl-7.21.1\curl-7.21.1\lib;C:\Users\Novacane\Desktop\curl-7.21.1\curl-7.21.1\lib\LIB-Debug;C:\Program Files (x86)\CsernakGergely\EuroScope\PlugInEnvironment;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Program Files %28x86%29\EuroScope\PlugInEnvironment;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files (x86)\EuroScope\PlugInEnvironment;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>C:\Program Files %28x86%29\CsernakGergely\EuroScope\PlugInEnvironment;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files %28x86%29\CsernakGergely\EuroScope\PlugInEnvironment;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -87,7 +90,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <CompileAsManaged>false</CompileAsManaged>
       <UseUnicodeForAssemblerListing>true</UseUnicodeForAssemblerListing>
-      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\CsernakGergely\EuroScope\PlugInEnvironment;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\EuroScope\PlugInEnvironment;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
@@ -99,6 +102,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <ModuleDefinitionFile>.\euroNAT.def</ModuleDefinitionFile>
       <AdditionalDependencies>EuroScopePlugInDll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Program Files %28x86%29\EuroScope\PlugInEnvironment;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -128,7 +132,7 @@
     <ClCompile Include="WebGrab.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\Program Files (x86)\CsernakGergely\EuroScope\PlugInEnvironment\EuroScopePlugIn.h" />
+    <ClInclude Include="..\..\..\..\..\..\Program Files (x86)\EuroScope\PlugInEnvironment\EuroScopePlugIn.h" />
     <ClInclude Include="euroNAT.h" />
     <ClInclude Include="euroNatOptions.h" />
     <ClInclude Include="euroNatPlugin.h" />
