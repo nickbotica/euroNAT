@@ -1,0 +1,66 @@
+NAME:EuroScope main sector file provider
+URL:http://www.euroscope.hu/sectorfile/euroscope_sector_providers.txt
+LOCALFILE:./euroscope_sector_providers.txt
+LASTDOWNLOAD:201010272036
+NEXTDOWNLOAD:201010292036
+AUTODOWNLOAD:1
+NAME:VATSIM Bulgarian Sector File Provider
+URL:http://vaccbul.avsim-bg.org/ES/VACCBUL_sector_provider.txt
+LOCALFILE:C:\Users\Novacane\Desktop\Code\euroNAT\VACCBUL_sector_provider.txt
+AUTODOWNLOAD:0
+NAME:EuroCenter vACC Sector File Provider
+URL:http://www.euc-vacc.org/es/EUROCEN_sector_file.txt
+LOCALFILE:C:\Users\Novacane\Desktop\Code\euroNAT\EUROCEN_sector_file.txt
+AUTODOWNLOAD:0
+NAME:LHCC - VACCHUN Sector Files
+URL:http://www.vacchun.hu/es/vacchun_sector_files.txt
+LOCALFILE:C:\Users\Novacane\Desktop\Code\euroNAT\vacchun_sector_files.txt
+AUTODOWNLOAD:0
+NAME:Shanwick & Gander Oceanic
+URL:http://idisk.mac.com/boerner-Public/EuroScope/EGGX-CZQX_sector_file.txt
+LOCALFILE:C:\Users\Novacane\Desktop\Code\euroNAT\EGGX-CZQX_sector_file.txt
+AUTODOWNLOAD:0
+NAME:VATSIM Germany Sector File Provider
+URL:http://nav.vatsim-germany.org/files/VATGER_sector_provider.txt
+LOCALFILE:C:\Users\Novacane\Desktop\Code\euroNAT\VATGER_sector_provider.txt
+AUTODOWNLOAD:0
+NAME:VATSIM Canada Sector File Provider
+URL:http://czul.vatcan.org/CANscope/VATCAN_Sector_Provider.txt
+LOCALFILE:C:\Users\Novacane\Desktop\Code\euroNAT\VATCAN_Sector_Provider.txt
+AUTODOWNLOAD:0
+NAME:VATAME sector files
+URL:http://vatame.vacc-morocco.org/vatame_sector_files.txt
+LOCALFILE:C:\Users\Novacane\Desktop\Code\euroNAT\vatame_sector_files.txt
+AUTODOWNLOAD:0
+NAME:EKDK Copenhagen FIR - Vaccsca Denmark
+URL:http://sites.google.com/site/hophans/EKDK_sector_file.txt
+LOCALFILE:C:\Users\Novacane\Desktop\Code\euroNAT\EKDK_sector_file.txt
+AUTODOWNLOAD:0
+NAME:Polish vACC Sector Provider
+URL:http://dziadowiec.pl/ES/PLVACC_sectors.txt
+LOCALFILE:C:\Users\Novacane\Desktop\Code\euroNAT\PLVACC_sectors.txt
+AUTODOWNLOAD:0
+NAME:vACC Italy Sector Files
+URL:http://www.vatita.net/es/vatita_sector_files.txt
+LOCALFILE:C:\Users\Novacane\Desktop\Code\euroNAT\vatita_sector_files.txt
+AUTODOWNLOAD:0
+NAME:LRBB - ROvACC Sector Files
+URL:http://www.rovacc.org/downloads/ROvACC_sector_stuff.txt
+LOCALFILE:C:\Users\Novacane\Desktop\Code\euroNAT\ROvACC_sector_stuff.txt
+AUTODOWNLOAD:0
+NAME:Ukraine vACC Sector Files
+URL:http://www.avpu.org/Sectors/Euroscope/VACCUKR_sectors.txt
+LOCALFILE:C:\Users\Novacane\Desktop\Code\euroNAT\VACCUKR_sectors.txt
+AUTODOWNLOAD:0
+NAME:ZLC Center Complete
+URL:http://starvalleyranch.net/uploads/ZLC_Sector_Provider.txt
+LOCALFILE:C:\Users\Novacane\Desktop\Code\euroNAT\ZLC_Sector_Provider.txt
+AUTODOWNLOAD:0
+NAME:vZAU Chicago - Beta
+URL:http://zausector.webbhq.net/vZAU_Sector_Files.txt
+LOCALFILE:C:\Users\Novacane\Desktop\Code\euroNAT\vZAU_Sector_Files.txt
+AUTODOWNLOAD:0
+NAME:Alaska ARTCC Control File
+URL:http://vzanartcc.net/downloads/euroscope/vZAN_sectorfiles.txt
+LOCALFILE:C:\Users\Novacane\Desktop\Code\euroNAT\vZAN_sectorfiles.txt
+AUTODOWNLOAD:0

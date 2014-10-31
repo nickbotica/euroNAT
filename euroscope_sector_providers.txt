@@ -1,0 +1,54 @@
+EuroScope Sector File Provider File
+
+NAME:EuroScope main sector file provider
+URL:http://www.euroscope.hu/sectorfile/euroscope_sector_providers.txt
+NEXTDOWNLOAD:20090720
+DOWNLOADINTERVAL:48
+
+# other sector file providers
+
+PROVIDER_NAME:VATSIM Bulgarian Sector File Provider
+PROVIDER_URL:http://vaccbul.avsim-bg.org/ES/VACCBUL_sector_provider.txt
+
+PROVIDER_NAME:EuroCenter vACC Sector File Provider
+PROVIDER_URL:http://www.euc-vacc.org/es/EUROCEN_sector_file.txt
+
+PROVIDER_NAME:LHCC - VACCHUN Sector Files
+PROVIDER_URL:http://www.vacchun.hu/es/vacchun_sector_files.txt
+
+PROVIDER_NAME:Shanwick & Gander Oceanic
+PROVIDER_URL:http://idisk.mac.com/boerner-Public/EuroScope/EGGX-CZQX_sector_file.txt
+
+PROVIDER_NAME:VATSIM Germany Sector File Provider
+PROVIDER_URL:http://nav.vatsim-germany.org/files/VATGER_sector_provider.txt
+
+PROVIDER_NAME:VATSIM Canada Sector File Provider
+PROVIDER_URL:http://czul.vatcan.org/CANscope/VATCAN_Sector_Provider.txt
+
+PROVIDER_NAME:VATAME sector files
+PROVIDER_URL:http://vatame.vacc-morocco.org/vatame_sector_files.txt
+
+PROVIDER_NAME:EKDK Copenhagen FIR - Vaccsca Denmark
+PROVIDER_URL:http://sites.google.com/site/hophans/EKDK_sector_file.txt
+
+PROVIDER_NAME:Polish vACC Sector Provider
+PROVIDER_URL:http://dziadowiec.pl/ES/PLVACC_sectors.txt
+
+PROVIDER_NAME:vACC Italy Sector Files
+PROVIDER_URL:http://www.vatita.net/es/vatita_sector_files.txt
+
+PROVIDER_NAME:LRBB - ROvACC Sector Files
+PROVIDER_URL:http://www.rovacc.org/downloads/ROvACC_sector_stuff.txt
+
+PROVIDER_NAME:Ukraine vACC Sector Files
+PROVIDER_URL:http://www.avpu.org/Sectors/Euroscope/VACCUKR_sectors.txt
+
+PROVIDER_NAME:ZLC Center Complete
+PROVIDER_URL:http://starvalleyranch.net/uploads/ZLC_Sector_Provider.txt
+
+PROVIDER_NAME:vZAU Chicago - Beta
+PROVIDER_URL:http://zausector.webbhq.net/vZAU_Sector_Files.txt
+
+PROVIDER_NAME:Alaska ARTCC Control File
+PROVIDER_URL:http://vzanartcc.net/downloads/euroscope/vZAN_sectorfiles.txt
+
