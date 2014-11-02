@@ -58,17 +58,13 @@ UINT NATData::FetchDataWorker( LPVOID pvar ){
 	NATWorkerCont* dta = &NATData::NATWorkerData;
 
 	NATShow::Loading = true;
-	
-	CDaoDatabase * pwpdb;
-	CDaoQueryDef * pqry;
-	CDaoRecordset * precord;
 
 	CWebGrab grab;
 	CString response, track, waypoints, levels, line, tmp;
 	CStringArray items;
 	int pos1, pos2, pos3, pos4, itemcount, i, NATcnt = 0;
 
-	/*grab.GetFile("http://vrcapi.metacraft.com/VRC/api/oceanic_tracks.xml", response, _T("euroNAT"));
+	grab.GetFile("http://vrcapi.metacraft.com/VRC/api/oceanic_tracks.xml", response, _T("euroNAT"));
 	
 	response.Replace("\n", "");
 
@@ -89,6 +85,9 @@ UINT NATData::FetchDataWorker( LPVOID pvar ){
 		tmp = track.Mid(track.Find("tmi=\"") + 5, 3);
 		dta->m_pNats[NATcnt].TMI = atoi(tmp);
 
+		// Type
+		dta->m_pNats[NATcnt].Concorde = false;
+
 		// Waypoints
 		pos3 = track.Find("<waypoints>") + 11;
 		pos4 = track.Find("</waypoints>");
@@ -102,16 +101,22 @@ UINT NATData::FetchDataWorker( LPVOID pvar ){
 		Explode(waypoints, " ", items);
 		itemcount = items.GetCount() / 3;
 
-		//for (i = 0; i < itemcount; i++){
-			//dta->m_pNats[NATcnt].Waypoints[i].Position.m_Latitude = atof(items[3 * i + 1]);
-			//dta->m_pNats[NATcnt].Waypoints[i].Position.m_Longitude = atof(items[3 * i + 2]);
-			//dta->m_pNats[NATcnt].Waypoints[i].Name = items[3 * i];
-			//if (NATShow::ShortWPNames)
-			//	dta->m_pNats[NATcnt].Waypoints[j].Name.Format("%dW", lon);
-			//else
-			//	dta->m_pNats[NATcnt].Waypoints[j].Name.Format("%dN%dW", lat, lon);
+		dta->m_pNats[NATcnt].WPCount = itemcount;
+
+		for (i = 0; i < itemcount; i++){
+			dta->m_pNats[NATcnt].Waypoints[i].Position.m_Latitude = atof(items[3 * i + 1]);
+			dta->m_pNats[NATcnt].Waypoints[i].Position.m_Longitude = atof(items[3 * i + 2]);
+			if (items[3 * i].GetAt(0) >= '0' & items[3 * i].GetAt(0) <= '9'){
+				if (NATShow::ShortWPNames)
+					dta->m_pNats[NATcnt].Waypoints[i].Name.Format("%sW", items[3 * i].Right(2));
+				else
+					dta->m_pNats[NATcnt].Waypoints[i].Name.Format("%sN%sW", items[3 * i].Left(2), items[3 * i].Right(2));
+			}
+			else {
+				dta->m_pNats[NATcnt].Waypoints[i].Name = items[3 * i];
+			}
 			//tmp.Format("%s: %f %f", items[3 * i], atof(items[3 * i + 1]), atof(items[3 * i + 2])); AfxMessageBox(tmp, MB_OK);
-		//}
+		}
 
 		// Flight Levels
 		pos3 = track.Find("<levels>") + 8;
@@ -126,84 +131,17 @@ UINT NATData::FetchDataWorker( LPVOID pvar ){
 		Explode(levels, " ", items);
 		itemcount = items.GetCount();
 		
-		//for (i = 0; i < itemcount; i++){
-			//dta->m_pNats[NATcnt].FlightLevels[i] = atoi(items[i]);
-		}//
+		for (i = 0; i < itemcount; i++){
+			dta->m_pNats[NATcnt].FlightLevels[i] = atoi(items[i]);
+			//tmp.Format("%d", atoi(items[i])); AfxMessageBox(tmp, MB_OK);
+		}
 
-		//*NATcnt += 1;
+		NATcnt += 1;
 
 		pos1 = response.Find("<track type=\"NAT\"", pos1 + 1);
-	}*/
+	}
 
 	*dta->m_pNatCount = NATcnt;
-
-	/*
-	for (pos1 = 0; pos1 < lines.GetSize(); pos1++)
-	{
-		CString current = lines.GetAt(pos1);
-		current = current.Mid(4, current.GetLength() - 10);
-
-		Explode(current, "</TD><TD>", pieces);
-		
-		dta->m_pNats[pos1].Dir = pieces[2] == "NIL" ? Direction::WEST : Direction::EAST;
-		dta->m_pNats[pos1].Letter = pieces[0].GetAt(0);
-		dta->m_pNats[pos1].TMI = atoi(pieces[7]);
-		
-		// Waypoints
-		Explode(pieces[1], " ", rtal);
-		{
-			int j = 0;
-			for (int rtalc = rtal.GetCount(); j < rtalc; j++){
-				if (rtal[j].GetAt(0) >= '0' && rtal[j].GetAt(0) <= '9'){ // If WP starts with a number
-					int lat = atoi(rtal[j].Left(2));
-					int lon = atoi(rtal[j].Right(2));
-					dta->m_pNats[pos1].Waypoints[j].Position.m_Latitude = (double)lat;
-					dta->m_pNats[pos1].Waypoints[j].Position.m_Longitude = (double)lon * -1;
-					if (NATShow::ShortWPNames)
-						dta->m_pNats[pos1].Waypoints[j].Name.Format("%dW", lon);
-					else
-						dta->m_pNats[pos1].Waypoints[j].Name.Format("%dN%dW", lat, lon);
-				}
-				else {
-					// Lookup Lat Lon from DB
-					dta->m_pNats[pos1].Waypoints[j].Name = rtal[j];
-					try{
-						pqry->SetParamValue("WaypointName", COleVariant(dta->m_pNats[pos1].Waypoints[j].Name, VT_BSTRT));
-						if (precord->IsOpen()){
-							precord->Requery();
-						}
-						else {
-							precord->Open(pqry, 4);
-						}
-						COleVariant olevarLat = precord->GetFieldValue("Latitude");
-						COleVariant olevarLon = precord->GetFieldValue("Longtitude");
-						dta->m_pNats[pos1].Waypoints[j].Position.m_Latitude = olevarLat.dblVal;
-						dta->m_pNats[pos1].Waypoints[j].Position.m_Longitude = olevarLon.dblVal;
-					}
-					catch (...){
-						dta->m_pNats[pos1].Waypoints[j].Name = "SKIPME";
-						NATShow::OutOfDate = true;
-						// Database error or point doesn't exist!
-						//pwpdb->Close();
-						//break;
-						}
-				}
-			}
-			dta->m_pNats[pos1].WPCount = j;
-		}
-
-		// Flight Levels
-		if (dta->m_pNats[pos1].Dir == Direction::EAST)
-			Explode(pieces[2], " ", rtal);
-		else
-			Explode(pieces[3], " ", rtal);
-		{
-			int j = 0;
-			for (int rtalc = rtal.GetCount(); j < rtalc; j++){
-				dta->m_pNats[pos1].FlightLevels[j] = atoi(rtal[j]);
-			}
-		}
-	}*/
 
 	NATData::AddConcordTracks(dta);
 
