@@ -1,6 +1,11 @@
 #include "StdAfx.h"
 #include "NATData.h"
 #include "NATShow.h"
+#include <regex>
+#include <iterator>
+#include <iostream>
+#include <string>
+using namespace std;
 
 NATData::NATWorkerCont NATData::NATWorkerData;
 NATData * NATData::LastInstance = NULL;
@@ -64,88 +69,40 @@ UINT NATData::FetchDataWorker( LPVOID pvar ){
 	CStringArray items;
 	int pos1, pos2, pos3, pos4, itemcount, i, NATcnt = 0;
 
-	grab.GetFile("http://vrcapi.metacraft.com/VRC/api/oceanic_tracks.xml", response, _T("euroNAT"));
+	grab.GetFile("https://pilotweb.nas.faa.gov/common/nat.html", response);
+
+	// CString to string for regex searching
+	string res((LPCTSTR) response);
 	
-	response.Replace("\n", "");
+	const regex track_regex("([a-zA-Z]\\s+)([a-zA-Z]{5}\\s+)+((\\d{2,}\\/\\d{2,}\\s+)+)([a-zA-Z]{5}\\s+)+");
 
-	pos1 = response.Find("<track type=\"NAT\"");
-	while (pos1 > -1){
-		pos2 = response.Find("</track>", pos1) + 8;
-		track = response.Mid(pos1, pos2 - pos1);
+	//loop
 
-		// Letter
-		tmp = track.Mid(track.Find("id=\"") + 4, 1);
-		dta->m_pNats[NATcnt].Letter = tmp.GetAt(0);
 
-		// Direction
-		tmp = track.Mid(track.Find("direction=\"") + 11, 4);
-		dta->m_pNats[NATcnt].Dir = tmp == "WEST" ? Direction::WEST : Direction::EAST;
+	auto words_begin =
+		std::sregex_iterator(res.begin(), res.end(), track_regex);
+	auto words_end = std::sregex_iterator();
 
-		// TMI
-		tmp = track.Mid(track.Find("tmi=\"") + 5, 3);
-		dta->m_pNats[NATcnt].TMI = atoi(tmp);
 
-		// Type
-		dta->m_pNats[NATcnt].Concorde = false;
 
-		// Waypoints
-		pos3 = track.Find("<waypoints>") + 11;
-		pos4 = track.Find("</waypoints>");
-		waypoints = track.Mid(pos3, pos4 - pos3); //AfxMessageBox(waypoints, MB_OK);
+	for (sregex_iterator i = words_begin; i != words_end; ++i) {
+		smatch match = *i;
+		string match_str = match.str();
 
-		waypoints.Replace("<waypoint id=\"", "");
-		waypoints.Replace("\" />", " ");
-		waypoints.Replace("\" lat=\"", " ");
-		waypoints.Replace("\" lon=\"", " ");
+	}
 
-		Explode(waypoints, " ", items);
-		itemcount = items.GetCount() / 3;
+	// for each NATtrk
 
-		dta->m_pNats[NATcnt].WPCount = itemcount;
-
-		for (i = 0; i < itemcount; i++){
-			dta->m_pNats[NATcnt].Waypoints[i].Position.m_Latitude = atof(items[3 * i + 1]);
-			dta->m_pNats[NATcnt].Waypoints[i].Position.m_Longitude = atof(items[3 * i + 2]);
-			if (items[3 * i].GetAt(0) >= '0' & items[3 * i].GetAt(0) <= '9'){
-				if (NATShow::ShortWPNames)
-					dta->m_pNats[NATcnt].Waypoints[i].Name.Format("%sW", items[3 * i].Right(2));
-				else
-					dta->m_pNats[NATcnt].Waypoints[i].Name.Format("%sN%sW", items[3 * i].Left(2), items[3 * i].Right(2));
-			}
-			else {
-				dta->m_pNats[NATcnt].Waypoints[i].Name = items[3 * i];
-			}
-			//tmp.Format("%s: %f %f", items[3 * i], atof(items[3 * i + 1]), atof(items[3 * i + 2])); AfxMessageBox(tmp, MB_OK);
-		}
-
-		// Flight Levels
-		pos3 = track.Find("<levels>") + 8;
-		pos4 = track.Find("</levels>");
-		levels = track.Mid(pos3, pos4 - pos3); //AfxMessageBox(levels, MB_OK);
-		
-		levels.Replace("\" direction=\"WEST\"", "");
-		levels.Replace("\" direction=\"EAST\"", "");
-		levels.Replace("<level fl=\"", "");
-		levels.Replace("/>", ""); //AfxMessageBox(levels, MB_OK);
-		
-		Explode(levels, " ", items);
-		itemcount = items.GetCount();
-		
-		for (i = 0; i < itemcount; i++){
-			dta->m_pNats[NATcnt].FlightLevels[i] = atoi(items[i]);
-			//tmp.Format("%d", atoi(items[i])); AfxMessageBox(tmp, MB_OK);
-		}
 
 		NATcnt += 1;
 
-		pos1 = response.Find("<track type=\"NAT\"", pos1 + 1);
-	}
+	//end loop
 
-	*dta->m_pNatCount = NATcnt;
+	//*dta->m_pNatCount = NATcnt;
 
-	NATData::AddConcordTracks(dta);
+	//NATData::AddConcordTracks(dta);
 
-	NATShow::Loading = false;
+	//NATShow::Loading = false;
 
 	return 0;
 }
