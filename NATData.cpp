@@ -80,18 +80,100 @@ UINT NATData::FetchDataWorker(LPVOID pvar) {
 
 	for (sregex_iterator iter = words_begin; iter != words_end; ++iter) {
 		smatch match = *iter;
-		CString match_str = match.str().c_str();
+		CString nat = match.str().c_str();
 
 		// Make a NAT
-		AddNAT(dta, match_str);
+
+
+		dta->m_pNats[NATcnt].Concorde = false;
+		// Just West for now
+		dta->m_pNats[NATcnt].Dir = Direction::WEST;
+		dta->m_pNats[NATcnt].Letter = nat[0];
+
+
+		// Tracks the index for the next waypoint to add.
+		int waypoint_index = 0;
+
+		// Scan one NAT string, build and add one NAT.
+		for (int cursor = 2; cursor < nat.GetLength(); cursor++) {
+			// SPACE
+			if (nat[cursor] == ' ') { cursor++; continue; }
+
+			// NAVAID
+			if (isalpha(nat[cursor])) {
+				CString navaid = nat.Mid(cursor, 5);
+				cursor += 5;
+
+				// Add waypoint
+				// TODO: Find navaid's positions
+
+				continue;
+			}
+
+			// LAT/LON
+			if (isdigit(nat[cursor])) {
+
+				// Lat and Long each have at least 2 digits, I've seen up to 4 (e.g 5730 would be 57.30).
+				string lat;
+				lat = nat.Mid(cursor, 2);
+				cursor += 2;
+
+				lat.operator+=('.');
+				// If lat has additional decimal numbers.
+				while (isdigit(nat[cursor])) {
+					lat = lat.operator+=(nat[cursor]);
+					cursor++;
+				}
+				// Eat a slash
+				cursor++;
+
+				string lon;
+				lon = nat.Mid(cursor, 2);
+				cursor += 2;
+				lon.operator+=('.');
+				// If lon has additional decimal numbers.
+				while (isdigit(nat[cursor])) {
+					lon = lon.operator+=(nat[cursor]);
+					cursor++;
+				}
+
+				double latitude = stod(lat);
+				// Longitudes are West, so negative sign is applied.
+				double longitude = stod('-' + lon);
+				dta->m_pNats[NATcnt].Waypoints[waypoint_index].Position.m_Latitude = latitude;
+				dta->m_pNats[NATcnt].Waypoints[waypoint_index].Position.m_Longitude = longitude;
+
+				// TODO: Long names or short names
+				// The Longitude name.
+				CString lon_name;
+				// Convert to CString.
+				lon_name = lon.c_str();
+				// Remove the decimal.
+				lon_name.Replace(".", "");
+
+				lon_name.Format("%2.0f", longitude);
+				//dta->m_pNats[NATcnt].Waypoints[waypoint_index].Name = lon_name + 'W';
+
+
+				// Increment for next waypoint to add
+				waypoint_index++;
+
+				continue;
+			}
+
+
+		}
+		// Add total number of waypoints
+		dta->m_pNats[NATcnt].WPCount = waypoint_index;
+
+		NATcnt += 1;
+		// Increment for next NAT to add
+		*dta->m_pNatCount = NATcnt;
 
 
 	}
 
-	// for each NATtrk
 
-
-	NATcnt += 1;
 
 	//end loop
 
@@ -104,97 +186,6 @@ UINT NATData::FetchDataWorker(LPVOID pvar) {
 	return 0;
 }
 
-
-void NATData::AddNAT(NATWorkerCont* dta, CString nat) {
-
-// Find the next NAT index to add.
-	int i = *dta->m_pNatCount;
-
-
-	dta->m_pNats[i].Concorde = false;
-	// Just West for now
-	dta->m_pNats[i].Dir = Direction::WEST;
-	dta->m_pNats[i].Letter = nat[0];
-
-
-	// Tracks the index for the next waypoint to add.
-	int waypoint_index = 0;
-
-	// Scan one NAT string, build and add one NAT.
-	for (int cursor = 2; cursor < nat.GetLength(); cursor++) {
-	// SPACE
-		if (nat[cursor] == ' ') { cursor++; continue; }
-
-		// NAVAID
-		if (isalpha(nat[cursor])) {
-			CString navaid = nat.Mid(cursor, 5);
-			cursor += 5;
-
-			// Add waypoint
-			// TODO: Find navaid's positions
-
-			continue;
-		}
-
-		// LAT/LON
-		if (isdigit(nat[cursor])) {
-
-		// Lat and Long each have at least 2 digits, I've seen up to 4 (e.g 5730 would be 57.30).
-			string lat;
-			lat = nat.Mid(cursor, 2);
-			cursor += 2;
-
-			lat.operator+=('.');
-			// If lat has additional decimal numbers.
-			while (isdigit(nat[cursor])) {
-				lat = nat.operator+=(nat[cursor]);
-				cursor++;
-			}
-			// Eat a slash
-			cursor++;
-
-			string lon;
-			lon = nat.Mid(cursor, 2);
-			cursor += 2;
-			lon.operator+=('.');
-			// If lon has additional decimal numbers.
-			while (isdigit(nat[cursor])) {
-				lon = nat.operator+=(nat[cursor]);
-				cursor++;
-			}
-
-			double latitude = stod(lat);
-			// Longitudes are West, so negative sign is applied.
-			double longitude = stod('-' + lon);
-			dta->m_pNats[i].Waypoints[waypoint_index].Position.m_Latitude = latitude;
-			dta->m_pNats[i].Waypoints[waypoint_index].Position.m_Longitude = longitude;
-
-			// TODO: Long names or short names
-			// The Longitude name.
-			CString lon_name;
-			// Convert to CString.
-			lon_name = lon.c_str();
-			// Remove the decimal.
-			lon_name.Replace(".", "");
-
-			lon_name.Format("%2.0f", longitude);
-			//dta->m_pNats[i].Waypoints[waypoint_index].Name = lon_name + 'W';
-
-
-			// Increment for next waypoint to add
-			waypoint_index++;
-
-			continue;
-		}
-
-
-	}
-	// Add total number of waypoints
-	dta->m_pNats[i].WPCount = waypoint_index;
-
-	// Increment for next NAT to add
-	*dta->m_pNatCount++;
-}
 
 
 void NATData::AddConcordTracks(NATWorkerCont* dta) {

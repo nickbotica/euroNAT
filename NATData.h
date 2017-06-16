@@ -52,8 +52,6 @@ protected:
 
 	static UINT FetchDataWorker( LPVOID pvar );
 
-	static void AddNAT(NATWorkerCont * dta, CString nat);
-
 public:
 	NATData(void);
 	~NATData(void);
