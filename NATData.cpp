@@ -2,9 +2,6 @@
 #include "NATData.h"
 #include "NATShow.h"
 #include <regex>
-//#include <iterator>
-//#include <iostream>
-//#include <string>
 using namespace std;
 
 NATData::NATWorkerCont NATData::NATWorkerData;
@@ -60,44 +57,46 @@ UINT NATData::FetchDataWorker(LPVOID pvar) {
 	NATShow::Loading = true;
 
 	CWebGrab grab;
-	CString response, track, waypoints, levels, line, tmp;
+	CString response;
 	CStringArray items;
-	int pos1, pos2, pos3, pos4, itemcount, i, NATcnt = 0;
+	int NATcnt = 0;
 
 	grab.GetFile("https://pilotweb.nas.faa.gov/common/nat.html", response);
 
 	// CString to string for regex searching
 	string res((LPCTSTR) response);
+	// TODO: Optimise?
+	const regex track_regex("([a-zA-Z]\\s+)([a-zA-Z]{5}\\s+)+(\\d{2,}\\/\\d{2,}\\s+)*(\\d{2,}\\/\\d{2,})*([a-zA-Z]{5}\\s+)*([a-zA-Z]{5})*\\nEAST LVLS .+\\nWEST LVLS .+\\n");
 
-	const regex track_regex("([a-zA-Z]{1}\\s+)([a-zA-Z]{5}\\s+)+((\\d{2,}\\/\\d{2,}\\s+)+)([a-zA-Z]{5}\\s+)+");
-
-	//loop
-
-
+	// Find all the matches
 	auto words_begin = sregex_iterator(res.begin(), res.end(), track_regex);
 	auto words_end = sregex_iterator();
 
-
+	// Loop through every match (NAT data string)
 	for (sregex_iterator iter = words_begin; iter != words_end; ++iter) {
 		smatch match = *iter;
 		CString nat = match.str().c_str();
 
 		// Make a NAT
-
-
 		dta->m_pNats[NATcnt].Concorde = false;
 		// Just West for now
 		dta->m_pNats[NATcnt].Dir = Direction::WEST;
 		dta->m_pNats[NATcnt].Letter = nat[0];
-
-
+		
 		// Tracks the index for the next waypoint to add.
 		int waypoint_index = 0;
 
-		// Scan one NAT string, build and add one NAT.
-		for (int cursor = 2; cursor < nat.GetLength(); cursor++) {
+		// Parse one NAT string, build and add one NAT.
+		// Reset the cursor each loop
+		int cursor = 2;
+		while (cursor < nat.GetLength()) {
 			// SPACE
 			if (nat[cursor] == ' ') { cursor++; continue; }
+
+			// NEW LINE \n
+			if (nat[cursor] == '\n') {
+				break;
+			}
 
 			// NAVAID
 			if (isalpha(nat[cursor])) {
@@ -112,7 +111,6 @@ UINT NATData::FetchDataWorker(LPVOID pvar) {
 
 			// LAT/LON
 			if (isdigit(nat[cursor])) {
-
 				// Lat and Long each have at least 2 digits, I've seen up to 4 (e.g 5730 would be 57.30).
 				string lat;
 				lat = nat.Mid(cursor, 2);
@@ -176,16 +174,10 @@ UINT NATData::FetchDataWorker(LPVOID pvar) {
 		dta->m_pNats[NATcnt].WPCount = waypoint_index;
 
 		NATcnt += 1;
-		// Increment for next NAT to add
-		*dta->m_pNatCount = NATcnt;
 
-
+		//End of each NAT loop
 	}
-
-
-
-	//end loop
-
+	
 	*dta->m_pNatCount = NATcnt;
 
 	NATData::AddConcordTracks(dta);
