@@ -66,7 +66,7 @@ UINT NATData::FetchDataWorker(LPVOID pvar) {
 	// CString to string for regex searching
 	string res((LPCTSTR) response);
 	// TODO: Optimise?
-	const regex track_regex("([a-zA-Z]\\s+)([a-zA-Z]{5}\\s+)+(\\d{2,}\\/\\d{2,}\\s+)*(\\d{2,}\\/\\d{2,})*([a-zA-Z]{5}\\s+)*([a-zA-Z]{5})*\\nEAST LVLS .+\\nWEST LVLS .+\\n");
+	const regex track_regex("([a-zA-Z]\\s+)([a-zA-Z]{5}\\s+)*(\\d{2,}\\/\\d{2,}\\s+)*(\\d{2,}\\/\\d{2,})*([a-zA-Z]{5}\\s+)*([a-zA-Z]{5})*\\nEAST LVLS .+\\nWEST LVLS .+\\n");
 
 	// Find all the matches
 	auto words_begin = sregex_iterator(res.begin(), res.end(), track_regex);
