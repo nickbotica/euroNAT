@@ -1,12 +1,16 @@
 #include "StdAfx.h"
 #include "NATData.h"
 #include "NATShow.h"
+#include <regex>
+//#include <iterator>
+//#include <iostream>
+//#include <string>
+using namespace std;
 
 NATData::NATWorkerCont NATData::NATWorkerData;
 NATData * NATData::LastInstance = NULL;
 
-NATData::NATData(void)
-{
+NATData::NATData(void) {
 	this->m_nats = new NAT[MAXNATS];
 	this->m_natcount = new int;
 	*this->m_natcount = 0;
@@ -18,43 +22,39 @@ NATData::NATData(void)
 }
 
 
-NATData::~NATData(void)
-{
-	delete [] this->m_nats;
+NATData::~NATData(void) {
+	delete[] this->m_nats;
 	delete this->m_natcount;
 }
 
-void NATData::Refresh(void){
+void NATData::Refresh(void) {
 	// Easier than HttpRequest Async
 	NATShow::Loading = true;
-	this->workerThread = AfxBeginThread( NATData::FetchDataWorker, &NATWorkerData );
+	this->workerThread = AfxBeginThread(NATData::FetchDataWorker, &NATWorkerData);
 }
 
-void NATData::GetTrackPtrs( NAT * pNats, int * pCount ){
+void NATData::GetTrackPtrs(NAT * pNats, int * pCount) {
 	pNats = this->m_nats;
 	pCount = this->m_natcount;
 }
 
-void Explode(CString szString, CString szToken, CStringArray& result)
-{
+void Explode(CString szString, CString szToken, CStringArray& result) {
 	result.RemoveAll();
 
 	int iCurrPos = 0;
 	CString subString;
 
-	while (-1 != (iCurrPos = szString.Find(szToken)))
-	{
+	while (-1 != (iCurrPos = szString.Find(szToken))) {
 		result.Add(szString.Left(iCurrPos));
 		szString = szString.Right(szString.GetLength() - iCurrPos - szToken.GetLength());
 	}
 
-	if (szString.GetLength() > 0)
-	{
+	if (szString.GetLength() > 0) {
 		result.Add(szString);
 	}
 }
 
-UINT NATData::FetchDataWorker( LPVOID pvar ){
+UINT NATData::FetchDataWorker(LPVOID pvar) {
 	NATWorkerCont* dta = &NATData::NATWorkerData;
 
 	NATShow::Loading = true;
@@ -64,82 +64,36 @@ UINT NATData::FetchDataWorker( LPVOID pvar ){
 	CStringArray items;
 	int pos1, pos2, pos3, pos4, itemcount, i, NATcnt = 0;
 
-	grab.GetFile("http://vrcapi.metacraft.com/VRC/api/oceanic_tracks.xml", response, _T("euroNAT"));
-	
-	response.Replace("\n", "");
+	grab.GetFile("https://pilotweb.nas.faa.gov/common/nat.html", response);
 
-	pos1 = response.Find("<track type=\"NAT\"");
-	while (pos1 > -1){
-		pos2 = response.Find("</track>", pos1) + 8;
-		track = response.Mid(pos1, pos2 - pos1);
+	// CString to string for regex searching
+	string res((LPCTSTR) response);
 
-		// Letter
-		tmp = track.Mid(track.Find("id=\"") + 4, 1);
-		dta->m_pNats[NATcnt].Letter = tmp.GetAt(0);
+	const regex track_regex("([a-zA-Z]{1}\\s+)([a-zA-Z]{5}\\s+)+((\\d{2,}\\/\\d{2,}\\s+)+)([a-zA-Z]{5}\\s+)+");
 
-		// Direction
-		tmp = track.Mid(track.Find("direction=\"") + 11, 4);
-		dta->m_pNats[NATcnt].Dir = tmp == "WEST" ? Direction::WEST : Direction::EAST;
+	//loop
 
-		// TMI
-		tmp = track.Mid(track.Find("tmi=\"") + 5, 3);
-		dta->m_pNats[NATcnt].TMI = atoi(tmp);
 
-		// Type
-		dta->m_pNats[NATcnt].Concorde = false;
+	auto words_begin = sregex_iterator(res.begin(), res.end(), track_regex);
+	auto words_end = sregex_iterator();
 
-		// Waypoints
-		pos3 = track.Find("<waypoints>") + 11;
-		pos4 = track.Find("</waypoints>");
-		waypoints = track.Mid(pos3, pos4 - pos3); //AfxMessageBox(waypoints, MB_OK);
 
-		waypoints.Replace("<waypoint id=\"", "");
-		waypoints.Replace("\" />", " ");
-		waypoints.Replace("\" lat=\"", " ");
-		waypoints.Replace("\" lon=\"", " ");
+	for (sregex_iterator iter = words_begin; iter != words_end; ++iter) {
+		smatch match = *iter;
+		CString match_str = match.str().c_str();
 
-		Explode(waypoints, " ", items);
-		itemcount = items.GetCount() / 3;
+		// Make a NAT
+		AddNAT(dta, match_str);
 
-		dta->m_pNats[NATcnt].WPCount = itemcount;
 
-		for (i = 0; i < itemcount; i++){
-			dta->m_pNats[NATcnt].Waypoints[i].Position.m_Latitude = atof(items[3 * i + 1]);
-			dta->m_pNats[NATcnt].Waypoints[i].Position.m_Longitude = atof(items[3 * i + 2]);
-			if (items[3 * i].GetAt(0) >= '0' & items[3 * i].GetAt(0) <= '9'){
-				if (NATShow::ShortWPNames)
-					dta->m_pNats[NATcnt].Waypoints[i].Name.Format("%sW", items[3 * i].Right(2));
-				else
-					dta->m_pNats[NATcnt].Waypoints[i].Name.Format("%sN%sW", items[3 * i].Left(2), items[3 * i].Right(2));
-			}
-			else {
-				dta->m_pNats[NATcnt].Waypoints[i].Name = items[3 * i];
-			}
-			//tmp.Format("%s: %f %f", items[3 * i], atof(items[3 * i + 1]), atof(items[3 * i + 2])); AfxMessageBox(tmp, MB_OK);
-		}
-
-		// Flight Levels
-		pos3 = track.Find("<levels>") + 8;
-		pos4 = track.Find("</levels>");
-		levels = track.Mid(pos3, pos4 - pos3); //AfxMessageBox(levels, MB_OK);
-		
-		levels.Replace("\" direction=\"WEST\"", "");
-		levels.Replace("\" direction=\"EAST\"", "");
-		levels.Replace("<level fl=\"", "");
-		levels.Replace("/>", ""); //AfxMessageBox(levels, MB_OK);
-		
-		Explode(levels, " ", items);
-		itemcount = items.GetCount();
-		
-		for (i = 0; i < itemcount; i++){
-			dta->m_pNats[NATcnt].FlightLevels[i] = atoi(items[i]);
-			//tmp.Format("%d", atoi(items[i])); AfxMessageBox(tmp, MB_OK);
-		}
-
-		NATcnt += 1;
-
-		pos1 = response.Find("<track type=\"NAT\"", pos1 + 1);
 	}
+
+	// for each NATtrk
+
+
+	NATcnt += 1;
+
+	//end loop
 
 	*dta->m_pNatCount = NATcnt;
 
@@ -150,10 +104,103 @@ UINT NATData::FetchDataWorker( LPVOID pvar ){
 	return 0;
 }
 
-void NATData::AddConcordTracks( NATWorkerCont* dta ){
+
+void NATData::AddNAT(NATWorkerCont* dta, CString nat) {
+
+// Find the next NAT index to add.
+	int i = *dta->m_pNatCount;
+
+
+	dta->m_pNats[i].Concorde = false;
+	// Just West for now
+	dta->m_pNats[i].Dir = Direction::WEST;
+	dta->m_pNats[i].Letter = nat[0];
+
+
+	// Tracks the index for the next waypoint to add.
+	int waypoint_index = 0;
+
+	// Scan one NAT string, build and add one NAT.
+	for (int cursor = 2; cursor < nat.GetLength(); cursor++) {
+	// SPACE
+		if (nat[cursor] == ' ') { cursor++; continue; }
+
+		// NAVAID
+		if (isalpha(nat[cursor])) {
+			CString navaid = nat.Mid(cursor, 5);
+			cursor += 5;
+
+			// Add waypoint
+			// TODO: Find navaid's positions
+
+			continue;
+		}
+
+		// LAT/LON
+		if (isdigit(nat[cursor])) {
+
+		// Lat and Long each have at least 2 digits, I've seen up to 4 (e.g 5730 would be 57.30).
+			string lat;
+			lat = nat.Mid(cursor, 2);
+			cursor += 2;
+
+			lat.operator+=('.');
+			// If lat has additional decimal numbers.
+			while (isdigit(nat[cursor])) {
+				lat = nat.operator+=(nat[cursor]);
+				cursor++;
+			}
+			// Eat a slash
+			cursor++;
+
+			string lon;
+			lon = nat.Mid(cursor, 2);
+			cursor += 2;
+			lon.operator+=('.');
+			// If lon has additional decimal numbers.
+			while (isdigit(nat[cursor])) {
+				lon = nat.operator+=(nat[cursor]);
+				cursor++;
+			}
+
+			double latitude = stod(lat);
+			// Longitudes are West, so negative sign is applied.
+			double longitude = stod('-' + lon);
+			dta->m_pNats[i].Waypoints[waypoint_index].Position.m_Latitude = latitude;
+			dta->m_pNats[i].Waypoints[waypoint_index].Position.m_Longitude = longitude;
+
+			// TODO: Long names or short names
+			// The Longitude name.
+			CString lon_name;
+			// Convert to CString.
+			lon_name = lon.c_str();
+			// Remove the decimal.
+			lon_name.Replace(".", "");
+
+			lon_name.Format("%2.0f", longitude);
+			//dta->m_pNats[i].Waypoints[waypoint_index].Name = lon_name + 'W';
+
+
+			// Increment for next waypoint to add
+			waypoint_index++;
+
+			continue;
+		}
+
+
+	}
+	// Add total number of waypoints
+	dta->m_pNats[i].WPCount = waypoint_index;
+
+	// Increment for next NAT to add
+	*dta->m_pNatCount++;
+}
+
+
+void NATData::AddConcordTracks(NATWorkerCont* dta) {
 	int i = *dta->m_pNatCount;
 	*dta->m_pNatCount += 5;
-	
+
 	// SM
 	dta->m_pNats[i].Concorde = true;
 	dta->m_pNats[i].Dir = Direction::NONE;
@@ -258,13 +305,13 @@ void NATData::AddConcordTracks( NATWorkerCont* dta ){
 	dta->m_pNats[i].Waypoints[2].Position.m_Latitude = 41.6;
 	dta->m_pNats[i].Waypoints[2].Position.m_Longitude = -30;
 	dta->m_pNats[i].Waypoints[3].Name = "40W";
-	dta->m_pNats[i].Waypoints[3].Position.m_Latitude = 34.366667 ;
+	dta->m_pNats[i].Waypoints[3].Position.m_Latitude = 34.366667;
 	dta->m_pNats[i].Waypoints[3].Position.m_Longitude = -40;
 	dta->m_pNats[i].Waypoints[4].Name = "27N";
 	dta->m_pNats[i].Waypoints[4].Position.m_Latitude = 27;
 	dta->m_pNats[i].Waypoints[4].Position.m_Longitude = -47.783333;
 	dta->m_pNats[i].Waypoints[5].Name = "50W";
-	dta->m_pNats[i].Waypoints[5].Position.m_Latitude = 24.633333 ;
+	dta->m_pNats[i].Waypoints[5].Position.m_Latitude = 24.633333;
 	dta->m_pNats[i].Waypoints[5].Position.m_Longitude = -50;
 	dta->m_pNats[i].Waypoints[6].Name = "18N";
 	dta->m_pNats[i].Waypoints[6].Position.m_Latitude = 18;
@@ -286,16 +333,19 @@ void NATData::AddConcordTracks( NATWorkerCont* dta ){
 	dta->m_pNats[i].Waypoints[2].Position.m_Latitude = 48.366667;
 	dta->m_pNats[i].Waypoints[2].Position.m_Longitude = -30;
 	dta->m_pNats[i].Waypoints[3].Name = "40W";
-	dta->m_pNats[i].Waypoints[3].Position.m_Latitude = 47.066667 ;
+	dta->m_pNats[i].Waypoints[3].Position.m_Latitude = 47.066667;
 	dta->m_pNats[i].Waypoints[3].Position.m_Longitude = -40;
 	dta->m_pNats[i].Waypoints[4].Name = "50W";
 	dta->m_pNats[i].Waypoints[4].Position.m_Latitude = 44.75;
 	dta->m_pNats[i].Waypoints[4].Position.m_Longitude = -50;
 	dta->m_pNats[i].Waypoints[5].Name = "52W";
-	dta->m_pNats[i].Waypoints[5].Position.m_Latitude = 44.166667 ;
+	dta->m_pNats[i].Waypoints[5].Position.m_Latitude = 44.166667;
 	dta->m_pNats[i].Waypoints[5].Position.m_Longitude = -52;
 	dta->m_pNats[i].Waypoints[6].Name = "60W";
 	dta->m_pNats[i].Waypoints[6].Position.m_Latitude = 42;
 	dta->m_pNats[i].Waypoints[6].Position.m_Longitude = -60;
 	dta->m_pNats[i].WPCount = 7;
+
+
+
 }
