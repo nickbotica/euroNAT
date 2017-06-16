@@ -136,24 +136,33 @@ UINT NATData::FetchDataWorker(LPVOID pvar) {
 					lon = lon.operator+=(nat[cursor]);
 					cursor++;
 				}
-
+				// String to Double
 				double latitude = stod(lat);
+				double longitude = stod(lon);
 				// Longitudes are West, so negative sign is applied.
-				double longitude = stod('-' + lon);
+				longitude = longitude / -1;
+
 				dta->m_pNats[NATcnt].Waypoints[waypoint_index].Position.m_Latitude = latitude;
 				dta->m_pNats[NATcnt].Waypoints[waypoint_index].Position.m_Longitude = longitude;
 
-				// TODO: Long names or short names
 				// The Longitude name.
-				CString lon_name;
-				// Convert to CString.
-				lon_name = lon.c_str();
-				// Remove the decimal.
-				lon_name.Replace(".", "");
+				if (NATShow::ShortWPNames) {
+					CString wp_name = lon.c_str();
+					wp_name.Append("W");
+					// Remove the decimal.
+					wp_name.Replace(".", "");
 
-				lon_name.Format("%2.0f", longitude);
-				//dta->m_pNats[NATcnt].Waypoints[waypoint_index].Name = lon_name + 'W';
+					dta->m_pNats[NATcnt].Waypoints[waypoint_index].Name = wp_name;
+				} else {
+					CString wp_name = lat.c_str();
+					wp_name.Append("N");
+					wp_name.Append(lon.c_str());
+					wp_name.Append("W");
+					// Remove the decimals.
+					wp_name.Replace(".", "");
 
+					dta->m_pNats[NATcnt].Waypoints[waypoint_index].Name = wp_name;
+				}
 
 				// Increment for next waypoint to add
 				waypoint_index++;
