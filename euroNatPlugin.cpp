@@ -36,15 +36,22 @@ bool euroNatPlugin::OnCompileCommand( const char * sCommandLine ){
 			this->m_guiopts.Create( IDD_DIALOG_OPTIONS );
 			this->m_guiopts.ShowWindow( 1 );
 		} else if( cmd.Mid( 9, 4 ) == "east" ){
-			NATShow::Eastbound = !NATShow::Eastbound;
+			NATShow::Eastbound = true;
+			NATShow::Westbound = false;
 		} else if( cmd.Mid( 9, 4 ) == "west" ){
-			NATShow::Eastbound = !NATShow::Westbound;
+			NATShow::Eastbound = false;
+			NATShow::Westbound = true;
 		} else if( cmd.Mid( 9, 3 ) == "all" ){
 			NATShow::Eastbound = true;
 			NATShow::Westbound = true;
 		} else if( cmd.Mid( 9, 4 ) == "none" ){
 			NATShow::Eastbound = false;
 			NATShow::Westbound = false;
+			NATShow::ConcordTracks = false;
+		} else if (cmd.Mid(9, 4) == "conc") {
+			NATShow::ConcordTracks = !NATShow::ConcordTracks;
+		} else if (cmd.Mid(9, 8) == "concorde") {
+			NATShow::ConcordTracks = !NATShow::ConcordTracks;
 		}
 	} else if( cmd.Left(11) == ".natoptions" ){
 		this->m_guiopts.DestroyWindow();
