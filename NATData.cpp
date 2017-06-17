@@ -60,11 +60,26 @@ UINT NATData::FetchDataWorker(LPVOID pvar) {
 	CString response;
 	CStringArray items;
 	int NATcnt = 0;
+	int tmi = -1;
+
 
 	grab.GetFile("https://pilotweb.nas.faa.gov/common/nat.html", response);
 
 	// CString to string for regex searching
 	string res((LPCTSTR) response);
+
+	// TMI Could be 1 or 3 numbers (day of the year)
+	int tmi_cursor = response.Find("TMI IS ");
+	CString tmi_string = response.Mid(tmi_cursor + 7, 3);
+
+	string tmi_temp;
+	int i = 0;
+	while (isdigit(tmi_string[i])) {
+		tmi_temp += tmi_string[i];
+		i++;
+	}
+	tmi = stoi(tmi_temp);
+
 	// TODO: Optimise?
 	const regex track_regex("([a-zA-Z]\\s+)([a-zA-Z]{5}\\s+)*(\\d{2,}\\/\\d{2,}\\s+)*(\\d{2,}\\/\\d{2,})*([a-zA-Z]{5}\\s+)*([a-zA-Z]{5})*\\nEAST LVLS .+\\nWEST LVLS .+\\n");
 
@@ -79,10 +94,9 @@ UINT NATData::FetchDataWorker(LPVOID pvar) {
 
 		// Make a NAT
 		dta->m_pNats[NATcnt].Concorde = false;
-		// Just West for now
-		dta->m_pNats[NATcnt].Dir = Direction::WEST;
+		dta->m_pNats[NATcnt].TMI = tmi;
 		dta->m_pNats[NATcnt].Letter = nat[0];
-		
+
 		// Tracks the index for the next waypoint to add.
 		int waypoint_index = 0;
 
@@ -90,15 +104,53 @@ UINT NATData::FetchDataWorker(LPVOID pvar) {
 		// Reset the cursor each loop
 		int cursor = 2;
 		while (cursor < nat.GetLength()) {
-			// SPACE
+			// SPACE ----------------------------------------------------------
 			if (nat[cursor] == ' ') { cursor++; continue; }
 
-			// NEW LINE \n
+			// NEW LINE \n EAST OR WEST ---------------------------------------
 			if (nat[cursor] == '\n') {
-				break;
+				cursor++;
+				// Check if there's more string
+				if (cursor >= nat.GetLength()) continue;
+
+				CString dir = nat.Mid(cursor, 4);
+				// Skip 'EAST LVLS ' / 'WEST LVLS '
+				cursor += 10;
+
+				// 'NIL'
+				if (nat[cursor] == 'N') {
+					cursor += 3;
+					continue;
+
+				} else if (isdigit(nat[cursor])) {
+					int flight_levels[FLCOUNT] = {0};
+					int i = 0;
+
+					while (nat[cursor] != '\n') {
+						
+						int flight_level = atoi(nat.Mid(cursor, 3));
+						flight_levels[i] = flight_level;
+						cursor += 3;
+
+						if (nat[cursor] == ' ') cursor++;
+
+						i++;
+						continue;
+					}
+
+					Direction dir_enum;
+					(dir == "EAST") ? dir_enum = EAST : dir_enum = WEST;
+					dta->m_pNats[NATcnt].Dir = dir_enum;
+
+					for (int i = 0; i <= 20; i++) {
+						dta->m_pNats[NATcnt].FlightLevels[i] = flight_levels[i];
+					}
+				}
+
 			}
 
-			// NAVAID
+
+			// NAVAID ---------------------------------------------------------
 			if (isalpha(nat[cursor])) {
 				CString navaid = nat.Mid(cursor, 5);
 				cursor += 5;
@@ -109,7 +161,7 @@ UINT NATData::FetchDataWorker(LPVOID pvar) {
 				continue;
 			}
 
-			// LAT/LON
+			// LAT/LON --------------------------------------------------------
 			if (isdigit(nat[cursor])) {
 				// Lat and Long each have at least 2 digits, I've seen up to 4 (e.g 5730 would be 57.30).
 				string lat;
@@ -173,11 +225,11 @@ UINT NATData::FetchDataWorker(LPVOID pvar) {
 		// Add total number of waypoints
 		dta->m_pNats[NATcnt].WPCount = waypoint_index;
 
-		NATcnt += 1;
+		NATcnt++;
 
 		//End of each NAT loop
 	}
-	
+
 	*dta->m_pNatCount = NATcnt;
 
 	NATData::AddConcordTracks(dta);
