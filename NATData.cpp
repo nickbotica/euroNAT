@@ -2,6 +2,10 @@
 #include "NATData.h"
 #include "NATShow.h"
 #include <regex>
+#include <fstream>
+#include <string>
+#include <sstream>
+#include <map>
 using namespace std;
 
 NATData::NATWorkerCont NATData::NATWorkerData;
@@ -54,19 +58,60 @@ void Explode(CString szString, CString szToken, CStringArray& result) {
 UINT NATData::FetchDataWorker(LPVOID pvar) {
 	NATWorkerCont* dta = &NATData::NATWorkerData;
 
+	std::map <CString, NATWaypoint> wp_map;
+
 	NATShow::Loading = true;
 
+	// Load waypoints into map
+	try {
+		// Get dll directory
+		TCHAR dllpath[2048];
+		GetModuleFileName(GetModuleHandle("euroNAT.dll"), dllpath, 2048);
+		CString wpfilename(dllpath);
+		wpfilename = wpfilename.Left(wpfilename.ReverseFind('\\') + 1);
+		wpfilename += "ISEC.txt";
+
+		// Read in waypoints
+		ifstream file(wpfilename);
+		string line, tmp, name, lat, lon;
+		while (getline(file, line)) {
+			// Ignore lines with ;
+			if (line[0] == ';') continue;
+
+			stringstream linestream(line);
+
+			getline(linestream, name, '\t');
+			getline(linestream, lat, '\t');
+			getline(linestream, lon, '\t');
+
+			NATWaypoint natwp;
+			natwp.Name = name.c_str();
+			natwp.Position.m_Latitude = stod(lat);
+			natwp.Position.m_Longitude = stod(lon);
+
+			wp_map.insert(pair<CString, NATWaypoint>(name.c_str(), natwp));
+		}
+		file.close();
+
+	} catch (...) {
+		//TODO: Error message
+		AfxMessageBox("euroNAT: Unable to open waypoint database.", MB_OK);
+		return 0;
+	}
+
+	
 	CWebGrab grab;
 	CString response;
-	CStringArray items;
+	//CStringArray items;
 	int NATcnt = 0;
-	int tmi = -1;
 
 
 	grab.GetFile("https://pilotweb.nas.faa.gov/common/nat.html", response);
 
 	// CString to string for regex searching
 	string res((LPCTSTR) response);
+
+	int tmi = -1;
 
 	// TMI Could be 1 or 3 numbers (day of the year)
 	int tmi_cursor = response.Find("TMI IS ");
@@ -107,7 +152,7 @@ UINT NATData::FetchDataWorker(LPVOID pvar) {
 			// SPACE ----------------------------------------------------------
 			if (nat[cursor] == ' ') { cursor++; continue; }
 
-			// NEW LINE \n EAST OR WEST ---------------------------------------
+			// NEW LINE \n EAST OR WEST FL ------------------------------------
 			if (nat[cursor] == '\n') {
 				cursor++;
 				// Check if there's more string
@@ -149,15 +194,21 @@ UINT NATData::FetchDataWorker(LPVOID pvar) {
 
 			}
 
-
 			// NAVAID ---------------------------------------------------------
 			if (isalpha(nat[cursor])) {
 				CString navaid = nat.Mid(cursor, 5);
 				cursor += 5;
 
-				// Add waypoint
-				// TODO: Find navaid's positions
-
+				if (wp_map.find(navaid) == wp_map.end()) {
+					// Not found
+					//TODO: Error can't find waypoint in ISEC.txt
+				} else {
+				// Found
+				dta->m_pNats[NATcnt].Waypoints[waypoint_index] = wp_map.at(navaid);
+				
+				waypoint_index++;
+				}
+				
 				continue;
 			}
 
@@ -219,7 +270,6 @@ UINT NATData::FetchDataWorker(LPVOID pvar) {
 
 				continue;
 			}
-
 
 		}
 		// Add total number of waypoints
