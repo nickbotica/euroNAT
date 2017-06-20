@@ -7,17 +7,17 @@ euroNatPlugin::euroNatPlugin(void) :
 	EuroScopePlugIn::CPlugIn( 
 		EuroScopePlugIn::COMPATIBILITY_CODE, 
 		"euroNAT",
-		"1.2",
-		"Merik Nanish",
+		"1.3",
+		"Nick Botica",
 		"NYARTCC ES euroNAT"
 	)
 {
-	//this->natData.GetTrackPtrs( this->m_nats, this->m_natcount );
 	this->m_nats = NATData::NATWorkerData.m_pNats;
 	this->m_natcount = NATData::NATWorkerData.m_pNatCount;
 
 	NATShow::Load( this );
 
+	this->natData.SetPlugin( this );
 	this->natData.Refresh();
 }
 

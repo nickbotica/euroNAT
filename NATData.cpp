@@ -10,6 +10,8 @@ using namespace std;
 
 NATData::NATWorkerCont NATData::NATWorkerData;
 NATData * NATData::LastInstance = NULL;
+CPlugIn* euroNatPlugin;
+
 
 NATData::NATData(void) {
 	this->m_nats = new NAT[MAXNATS];
@@ -34,25 +36,8 @@ void NATData::Refresh(void) {
 	this->workerThread = AfxBeginThread(NATData::FetchDataWorker, &NATWorkerData);
 }
 
-void NATData::GetTrackPtrs(NAT * pNats, int * pCount) {
-	pNats = this->m_nats;
-	pCount = this->m_natcount;
-}
-
-void Explode(CString szString, CString szToken, CStringArray& result) {
-	result.RemoveAll();
-
-	int iCurrPos = 0;
-	CString subString;
-
-	while (-1 != (iCurrPos = szString.Find(szToken))) {
-		result.Add(szString.Left(iCurrPos));
-		szString = szString.Right(szString.GetLength() - iCurrPos - szToken.GetLength());
-	}
-
-	if (szString.GetLength() > 0) {
-		result.Add(szString);
-	}
+void NATData::SetPlugin(CPlugIn* plugin) {
+	euroNatPlugin = plugin;
 }
 
 UINT NATData::FetchDataWorker(LPVOID pvar) {
@@ -69,7 +54,7 @@ UINT NATData::FetchDataWorker(LPVOID pvar) {
 		GetModuleFileName(GetModuleHandle("euroNAT.dll"), dllpath, 2048);
 		CString wpfilename(dllpath);
 		wpfilename = wpfilename.Left(wpfilename.ReverseFind('\\') + 1);
-		wpfilename += "ISEC.txt";
+		wpfilename += "waypoints.txt";
 
 		// Read in waypoints
 		ifstream file(wpfilename);
@@ -201,7 +186,9 @@ UINT NATData::FetchDataWorker(LPVOID pvar) {
 
 				if (wp_map.find(navaid) == wp_map.end()) {
 					// Not found
-					//TODO: Error can't find waypoint in ISEC.txt
+					CString message;
+					message.Format("Cannot find waypoint %s in waypoints.txt", navaid);
+					euroNatPlugin->DisplayUserMessage("euroNAT", "Info", message, true, true, true, true, false);
 				} else {
 				// Found
 				dta->m_pNats[NATcnt].Waypoints[waypoint_index] = wp_map.at(navaid);

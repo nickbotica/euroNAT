@@ -32,5 +32,6 @@ public:
 		bool CanBeSaved, 
 		bool CanBeCreated
 	);
+
 };
 
