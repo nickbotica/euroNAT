@@ -3,18 +3,21 @@
 #include "NATShow.h"
 #include "resource.h"
 
+const char * version = "1.3";
+
 euroNatPlugin::euroNatPlugin(void) : 
 	EuroScopePlugIn::CPlugIn( 
 		EuroScopePlugIn::COMPATIBILITY_CODE, 
 		"euroNAT",
-		"1.2",
-		"Merik Nanish",
+		version,
+		"Nick Botica",
 		"NYARTCC ES euroNAT"
 	)
 {
-	//this->natData.GetTrackPtrs( this->m_nats, this->m_natcount );
 	this->m_nats = NATData::NATWorkerData.m_pNats;
 	this->m_natcount = NATData::NATWorkerData.m_pNatCount;
+
+	CheckVersion();
 
 	NATShow::Load( this );
 
@@ -101,4 +104,31 @@ inline CRadarScreen * euroNatPlugin::OnRadarScreenCreated(
 	int i = this->m_RadarScreenList.Add( new euroNatRadarScreen( this->m_nats, this->m_natcount ) );
 
 	return this->m_RadarScreenList[i];
+}
+
+void euroNatPlugin::CheckVersion(void) {
+
+	CWebGrab grab;
+	CString response;
+
+	bool downloaded = grab.GetFile("https://rawgit.com/nickbotica/euroNAT/master/pluginversion.txt", response);
+
+	if (!downloaded) {
+		//TODO: error, counldn't download
+		return;
+	}
+
+	std::string res((LPCTSTR) response);
+
+	if (res.find("404") == std::string::npos) {
+		DisplayUserMessage("euroNAT", "Info", "Couldn't check if there's a newer version available", true, true, false, false, false);
+		return;
+	}
+
+	double current_version = std::stod(res);
+
+	if ( std::stod(version) < current_version ) {
+		DisplayUserMessage("euroNAT", "Info", "There is a new version (%d) avaliable at github.com/nickbotica/euroNAT/releases", true, true, true, true, false);
+	}
+
 }

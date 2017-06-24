@@ -4,6 +4,7 @@
 #include "NATData.h"
 #include "euroNatRadarScreen.h"
 #include "euroNatOptions.h"
+#include <string>
 
 using namespace EuroScopePlugIn;
 
@@ -21,6 +22,7 @@ protected:
 
 public:
 	euroNatPlugin(void);
+	void CheckVersion(void);
 	virtual ~euroNatPlugin(void);
 
 	inline virtual bool OnCompileCommand( const char * sCommandLine );
