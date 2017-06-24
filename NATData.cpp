@@ -71,6 +71,7 @@ UINT NATData::FetchDataWorker(LPVOID pvar) {
 
 			NATWaypoint natwp;
 			natwp.Name = name.c_str();
+			natwp.ShortName = name.c_str();
 			natwp.Position.m_Latitude = stod(lat);
 			natwp.Position.m_Longitude = stod(lon);
 
@@ -90,8 +91,7 @@ UINT NATData::FetchDataWorker(LPVOID pvar) {
 	//CStringArray items;
 	int NATcnt = 0;
 
-
-	grab.GetFile("https://pilotweb.nas.faa.gov/common/nat.html", response);
+	grab.GetFile("https://pilotweb.nas.faa.gov/common/naat.html", response);
 
 	// CString to string for regex searching
 	string res((LPCTSTR) response);
@@ -233,24 +233,23 @@ UINT NATData::FetchDataWorker(LPVOID pvar) {
 				dta->m_pNats[NATcnt].Waypoints[waypoint_index].Position.m_Latitude = latitude;
 				dta->m_pNats[NATcnt].Waypoints[waypoint_index].Position.m_Longitude = longitude;
 
-				// The Longitude name.
-				if (NATShow::ShortWPNames) {
-					CString wp_name = lon.c_str();
-					wp_name.Append("W");
-					// Remove the decimal.
-					wp_name.Replace(".", "");
+				// The Short Name
+				CString wp_name = lon.c_str();
+				wp_name.Append("W");
+				// Remove the decimal.
+				wp_name.Replace(".", "");
+				
+				dta->m_pNats[NATcnt].Waypoints[waypoint_index].ShortName = wp_name;
 
-					dta->m_pNats[NATcnt].Waypoints[waypoint_index].Name = wp_name;
-				} else {
-					CString wp_name = lat.c_str();
-					wp_name.Append("N");
-					wp_name.Append(lon.c_str());
-					wp_name.Append("W");
-					// Remove the decimals.
-					wp_name.Replace(".", "");
-
-					dta->m_pNats[NATcnt].Waypoints[waypoint_index].Name = wp_name;
-				}
+				// The Long Name
+				wp_name = lat.c_str();
+				wp_name.Append("N");
+				wp_name.Append(lon.c_str());
+				wp_name.Append("W");
+				// Remove the decimals.
+				wp_name.Replace(".", "");
+				
+				dta->m_pNats[NATcnt].Waypoints[waypoint_index].Name = wp_name;
 
 				// Increment for next waypoint to add
 				waypoint_index++;

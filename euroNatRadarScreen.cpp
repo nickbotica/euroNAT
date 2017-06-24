@@ -118,8 +118,11 @@ inline void euroNatRadarScreen::OnRefresh( HDC hDC, int Phase ){
 
 					// Draw first WP name
 					tmpRect = CRect( tmpPoint.x - 20, tmpPoint.y + WPWIDTH * 2, tmpPoint.x + 20, (tmpPoint.y + WPWIDTH * 2) + 20 );
-					dc.DrawTextEx( this->m_pNat[i].Waypoints[0].Name, ptmpRect, DT_CENTER | DT_NOCLIP | DT_VCENTER, NULL );
-
+					if (NATShow::ShortWPNames) {
+						dc.DrawTextEx(this->m_pNat[i].Waypoints[0].ShortName, ptmpRect, DT_CENTER | DT_NOCLIP | DT_VCENTER, NULL);
+					} else {
+						dc.DrawTextEx(this->m_pNat[i].Waypoints[0].Name, ptmpRect, DT_CENTER | DT_NOCLIP | DT_VCENTER, NULL);
+					}
 					if( NATShow::Letters ){
 						// Draw NAT Letter
 						dc.SelectObject( this->m_pFontBold );
@@ -156,8 +159,11 @@ inline void euroNatRadarScreen::OnRefresh( HDC hDC, int Phase ){
 
 					// Draw WP name
 					tmpRect = CRect( tmpPoint.x - 20, tmpPoint.y + WPWIDTH * 2, tmpPoint.x + 20, (tmpPoint.y + WPWIDTH * 2) + 20 );
-					dc.DrawTextEx( this->m_pNat[i].Waypoints[wp].Name, ptmpRect, DT_CENTER | DT_NOCLIP | DT_VCENTER, NULL );
-
+					if (NATShow::ShortWPNames) {
+						dc.DrawTextEx(this->m_pNat[i].Waypoints[wp].ShortName, ptmpRect, DT_CENTER | DT_NOCLIP | DT_VCENTER, NULL);
+					} else {
+						dc.DrawTextEx(this->m_pNat[i].Waypoints[wp].Name, ptmpRect, DT_CENTER | DT_NOCLIP | DT_VCENTER, NULL);
+					}
 					if( NATShow::Lines && !lastWPunknown ){
 						// Draw line segment
 						if( this->m_pNat[i].Concorde )

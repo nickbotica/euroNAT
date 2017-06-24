@@ -19,6 +19,7 @@ enum Direction{
 struct NATWaypoint {
 public:
 	CString Name;
+	CString ShortName;
 	CPosition Position;
 };
 
