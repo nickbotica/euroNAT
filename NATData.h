@@ -62,8 +62,8 @@ public:
 		return *NATWorkerData.m_pNatCount > 0;
 	}
 
-	void GetTrackPtrs( NAT * pNats, int * pCount );
-
 	void Refresh(void);
+
+	void SetPlugin(CPlugIn* euroNatPlugin);
 };
 

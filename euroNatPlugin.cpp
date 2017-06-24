@@ -22,6 +22,7 @@ euroNatPlugin::euroNatPlugin(void) :
 
 	NATShow::Load( this );
 
+	this->natData.SetPlugin( this );
 	this->natData.Refresh();
 }
 
@@ -142,3 +143,4 @@ void euroNatPlugin::CheckVersion(void) {
 	}
 
 }
+
