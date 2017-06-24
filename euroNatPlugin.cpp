@@ -3,13 +3,14 @@
 #include "NATShow.h"
 #include "resource.h"
 
-const char * version = "1.3";
+const char * pluginversion_string = "1.3";
+const CString pluginversion_url = "https://rawgit.com/nickbotica/euroNAT/develop/pluginversion.txt";
 
 euroNatPlugin::euroNatPlugin(void) : 
 	EuroScopePlugIn::CPlugIn( 
 		EuroScopePlugIn::COMPATIBILITY_CODE, 
 		"euroNAT",
-		version,
+		pluginversion_string,
 		"Nick Botica",
 		"NYARTCC ES euroNAT"
 	)
@@ -111,24 +112,33 @@ void euroNatPlugin::CheckVersion(void) {
 	CWebGrab grab;
 	CString response;
 
-	bool downloaded = grab.GetFile("https://rawgit.com/nickbotica/euroNAT/master/pluginversion.txt", response);
+	bool downloaded = grab.GetFile(pluginversion_url, response);
 
 	if (!downloaded) {
-		//TODO: error, counldn't download
+		CString message;
+		message.Format("Couldn't reach %s, to check for a newer version.", pluginversion_url);
+
+		DisplayUserMessage("euroNAT", "Info", message, true, true, false, false, false);
 		return;
 	}
 
 	std::string res((LPCTSTR) response);
 
-	if (res.find("404") == std::string::npos) {
-		DisplayUserMessage("euroNAT", "Info", "Couldn't check if there's a newer version available", true, true, false, false, false);
+	if (res.find("404") != std::string::npos) {
+		CString message;
+		message.Format("Received '404: Not Found' at %s, while checking for a newer version.", pluginversion_url);
+
+		DisplayUserMessage("euroNAT", "Info", message, true, true, false, false, false);
 		return;
 	}
 
 	double current_version = std::stod(res);
 
-	if ( std::stod(version) < current_version ) {
-		DisplayUserMessage("euroNAT", "Info", "There is a new version (%d) avaliable at github.com/nickbotica/euroNAT/releases", true, true, true, true, false);
+	if ( std::stod(pluginversion_string) < current_version ) {
+		CString message;
+		message.Format("There is a new version (%g) avaliable at github.com/nickbotica/euroNAT/releases.", current_version);
+
+		DisplayUserMessage("euroNAT", "Info", message, true, true, true, true, false);
 	}
 
 }
