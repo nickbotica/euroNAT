@@ -3,8 +3,9 @@
 #include "NATShow.h"
 #include "resource.h"
 
-const char * pluginversion_string = "1.3";
-const CString pluginversion_url = "https://rawgit.com/nickbotica/euroNAT/develop/pluginversion.txt";
+// TODO: Update version number for new releases (format x.xx)
+const char * pluginversion_string = "1.2";
+const CString pluginversion_url = "https://cdn.rawgit.com/nickbotica/euroNAT/947b95f2/pluginversion.txt";
 
 euroNatPlugin::euroNatPlugin(void) : 
 	EuroScopePlugIn::CPlugIn( 
