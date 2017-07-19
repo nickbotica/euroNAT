@@ -5,7 +5,7 @@
 
 // TODO: Update version number for new releases (format x.xx)
 const char * pluginversion_string = "1.2";
-const CString pluginversion_url = "https://cdn.rawgit.com/nickbotica/euroNAT/947b95f2/pluginversion.txt";
+const CString pluginversion_url = "https://raw.githubusercontent.com/nickbotica/euroNAT/master/pluginversion.txt";
 
 euroNatPlugin::euroNatPlugin(void) : 
 	EuroScopePlugIn::CPlugIn( 

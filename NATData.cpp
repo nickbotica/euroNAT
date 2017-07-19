@@ -91,7 +91,7 @@ UINT NATData::FetchDataWorker(LPVOID pvar) {
 	//CStringArray items;
 	int NATcnt = 0;
 
-	grab.GetFile("https://pilotweb.nas.faa.gov/common/naat.html", response);
+	grab.GetFile("https://pilotweb.nas.faa.gov/common/nat.html", response);
 
 	// CString to string for regex searching
 	string res((LPCTSTR) response);
