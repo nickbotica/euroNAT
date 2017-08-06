@@ -2,7 +2,6 @@
 #include "euroNatRadarScreen.h"
 #include "NATShow.h"
 #include <math.h>
-
 #include "wuline.h"
 
 #define WPWIDTH 4

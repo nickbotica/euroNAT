@@ -12,6 +12,7 @@ NATData::NATWorkerCont NATData::NATWorkerData;
 NATData * NATData::LastInstance = NULL;
 CPlugIn* euroNatPlugin;
 
+CString natURL = "https://pilotweb.nas.faa.gov/common/nat.html";
 
 NATData::NATData(void) {
 	this->m_nats = new NAT[MAXNATS];
@@ -75,13 +76,12 @@ UINT NATData::FetchDataWorker(LPVOID pvar) {
 			natwp.Position.m_Latitude = stod(lat);
 			natwp.Position.m_Longitude = stod(lon);
 
-			wp_map.insert(pair<CString, NATWaypoint>(name.c_str(), natwp));
+			wp_map.insert(pair<CString, NATWaypoint>(natwp.Name, natwp));
 		}
 		file.close();
 
 	} catch (...) {
-		//TODO: Error message
-		AfxMessageBox("euroNAT: Unable to open waypoint database.", MB_OK);
+		euroNatPlugin->DisplayUserMessage("euroNAT", "Info", "Unable to open waypoints.txt", true, true, true, true, true);
 		return 0;
 	}
 
@@ -91,24 +91,45 @@ UINT NATData::FetchDataWorker(LPVOID pvar) {
 	//CStringArray items;
 	int NATcnt = 0;
 
-	grab.GetFile("https://pilotweb.nas.faa.gov/common/nat.html", response);
+	if (!grab.GetFile(natURL, response)) {
+
+		CString errorMessage =  grab.GetErrorMessage();
+		euroNatPlugin->DisplayUserMessage("euroNAT", "Error", errorMessage, true, true, true, true, true);
+		CString message;
+		message.Format("Couldn't open %s", natURL);
+		euroNatPlugin->DisplayUserMessage("euroNAT", "Error", message, true, true, true, true, true);
+
+		return -1;
+	}
 
 	// CString to string for regex searching
 	string res((LPCTSTR) response);
 
-	int tmi = -1;
+	// Check for 'NO DATA IS ACTIVE'
+	if (response.Find("NO DATA IS ACTIVE") >= 0) {
+
+		CString message;
+		message.Format("No NAT Data is active, %s", natURL);
+		euroNatPlugin->DisplayUserMessage("euroNAT", "Info", message, true, true, true, true, true);
+
+		return -1;
+	}
+
 
 	// TMI Could be 1 or 3 numbers (day of the year)
+	int tmi = -1;
 	int tmi_cursor = response.Find("TMI IS ");
-	CString tmi_string = response.Mid(tmi_cursor + 7, 3);
+	if (tmi_cursor >= 0) {
+		CString tmi_string = response.Mid(tmi_cursor + 7, 3);
 
-	string tmi_temp;
-	int i = 0;
-	while (isdigit(tmi_string[i])) {
-		tmi_temp += tmi_string[i];
-		i++;
+		string tmi_temp;
+		int i = 0;
+		while (isdigit(tmi_string[i])) {
+			tmi_temp += tmi_string[i];
+			i++;
+		}
+		tmi = stoi(tmi_temp);
 	}
-	tmi = stoi(tmi_temp);
 
 	// TODO: Optimise?
 	const regex track_regex("([a-zA-Z]\\s+)([a-zA-Z]{5}\\s+)*(\\d{2,}\\/\\d{2,}\\s+)*(\\d{2,}\\/\\d{2,})*([a-zA-Z]{5}\\s+)*([a-zA-Z]{5})*\\nEAST LVLS .+\\nWEST LVLS .+\\n");
@@ -179,19 +200,38 @@ UINT NATData::FetchDataWorker(LPVOID pvar) {
 
 			}
 
-			// NAVAID ---------------------------------------------------------
+			// WAYPOINT -------------------------------------------------------
 			if (isalpha(nat[cursor])) {
-				CString navaid = nat.Mid(cursor, 5);
+				CString wp = nat.Mid(cursor, 5);
 				cursor += 5;
 
-				if (wp_map.find(navaid) == wp_map.end()) {
-					// Not found
+				if (wp_map.find(wp) == wp_map.end()) {
+					// Not found in the waypoints.txt map
 					CString message;
-					message.Format("Cannot find waypoint %s in waypoints.txt", navaid);
-					euroNatPlugin->DisplayUserMessage("euroNAT", "Info", message, true, true, true, true, false);
+					message.Format("Didn't find %s in waypoints.txt, looking in ISEC.txt", wp);
+					euroNatPlugin->DisplayUserMessage("euroNAT", "Info", message, true, false, false, false, false);
+
+					// Look in ISEC.txt
+					NATWaypoint natwp;
+					if (checkISEC(wp, &natwp)) {
+						// Found in ISEC.txt
+						dta->m_pNats[NATcnt].Waypoints[waypoint_index] = natwp;
+						waypoint_index++;
+
+						wp_map.insert(pair<CString, NATWaypoint>(natwp.Name, natwp));
+						
+						CString message;
+						message.Format("Found %s in ISEC.txt, added it to waypoints.txt", wp);
+						euroNatPlugin->DisplayUserMessage("euroNAT", "Info", message, true, false, false, false, false);
+
+					} else {
+						CString message;
+						message.Format("Cannot find %s in ISEC.txt. If it's a valid waypoint, consider updating ISEC.txt in the euroNAT.dll directory.", wp);
+						euroNatPlugin->DisplayUserMessage("euroNAT", "Error", message, true, true, true, true, true);
+					}
 				} else {
 				// Found
-				dta->m_pNats[NATcnt].Waypoints[waypoint_index] = wp_map.at(navaid);
+				dta->m_pNats[NATcnt].Waypoints[waypoint_index] = wp_map.at(wp);
 				
 				waypoint_index++;
 				}
@@ -275,6 +315,61 @@ UINT NATData::FetchDataWorker(LPVOID pvar) {
 	return 0;
 }
 
+bool NATData::checkISEC(CString wp, NATWaypoint * natwp) {
+
+	try {
+		// Get dll directory
+		TCHAR dllpath[2048];
+		GetModuleFileName(GetModuleHandle("euroNAT.dll"), dllpath, 2048);
+		CString isecfilename(dllpath);
+		isecfilename = isecfilename.Left(isecfilename.ReverseFind('\\') + 1);
+		isecfilename += "ISEC.txt";
+
+		// Read in waypoints
+		ifstream file(isecfilename);
+		string line, name, lat, lon;
+		while (getline(file, line)) {
+			// Ignore lines with ;
+			if (line[0] == ';') continue;
+
+			// wp is found in ISEC.txt
+			if (line.find(wp) != string::npos) {
+				stringstream linestream(line);
+
+				getline(linestream, name, '\t');
+				getline(linestream, lat, '\t');
+				getline(linestream, lon, '\t');
+
+				natwp->Name = name.c_str();
+				natwp->ShortName = name.c_str();
+				natwp->Position.m_Latitude = stod(lat);
+				natwp->Position.m_Longitude = stod(lon);
+
+				// Add to waypoints.txt
+				CString wpfilename(dllpath);
+				wpfilename = wpfilename.Left(wpfilename.ReverseFind('\\') + 1);
+				wpfilename += "waypoints.txt";
+				
+				fstream wpfile(wpfilename, fstream::app);
+
+				wpfile << name + "\t" + lat + "\t" + lon << endl;
+
+				wpfile.close();
+
+				return true;
+			}
+			
+		}
+		file.close();
+
+	} catch (...) {
+		euroNatPlugin->DisplayUserMessage("euroNAT", "Error", "Unable to open ISEC.txt in plugin directory", true, true, true, true, true);
+
+		return false;
+	}
+
+	return false;
+}
 
 
 void NATData::AddConcordTracks(NATWorkerCont* dta) {

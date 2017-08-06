@@ -4,7 +4,7 @@
 #include "resource.h"
 
 // TODO: Update version number for new releases (format x.xx)
-const char * pluginversion_string = "1.2";
+const char * pluginversion_string = "1.3";
 const CString pluginversion_url = "https://raw.githubusercontent.com/nickbotica/euroNAT/master/pluginversion.txt";
 
 euroNatPlugin::euroNatPlugin(void) : 
@@ -12,7 +12,7 @@ euroNatPlugin::euroNatPlugin(void) :
 		EuroScopePlugIn::COMPATIBILITY_CODE, 
 		"euroNAT",
 		pluginversion_string,
-		"Nick Botica",
+		"Nick Botica (999991)",
 		"NYARTCC ES euroNAT"
 	)
 {
@@ -130,7 +130,7 @@ void euroNatPlugin::CheckVersion(void) {
 		CString message;
 		message.Format("Received '404: Not Found' at %s, while checking for a newer version.", pluginversion_url);
 
-		DisplayUserMessage("euroNAT", "Info", message, true, true, false, false, false);
+		DisplayUserMessage("euroNAT", "Info", message, true, false, false, false, false);
 		return;
 	}
 
@@ -140,7 +140,7 @@ void euroNatPlugin::CheckVersion(void) {
 		CString message;
 		message.Format("There is a new version (%g) avaliable at github.com/nickbotica/euroNAT/releases.", current_version);
 
-		DisplayUserMessage("euroNAT", "Info", message, true, true, true, true, false);
+		DisplayUserMessage("euroNAT", "Info", message, true, true, false, true, false);
 	}
 
 }

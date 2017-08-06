@@ -53,6 +53,8 @@ protected:
 
 	static UINT FetchDataWorker( LPVOID pvar );
 
+	static bool checkISEC(CString navaid, NATWaypoint * natwp);
+
 public:
 	NATData(void);
 	~NATData(void);
