@@ -5,7 +5,13 @@ A plug-in for Euroscope that displays the live North Atlantic Tracks.
 Download the latest zip file under [Releases](https://github.com/nickbotica/euroNAT/releases).
 
 Extract and place the euroNAT folder where you like.  
-E.g. In the Euroscope folder in My Documents.
+E.g. In the EuroScope folder in Documents.
+
+Place an ISEC.txt waypoints database file in the same folder.  
+An old version of ISEC.txt can be found the Documents\EuroScope\DataFiles folder.  
+Otherwise purchase the FSNavigator AIRAC from Navigraph or Aerosoft and extract it from there.
+
+![alt text](http://imgur.com/HrhawRZ.png "Folder and file structure")
 
 To enable the euroNAT plugin, in Euroscope go to OTHER SET > Plug-ins ...  
 Click on Load, browse to and open euroNAT.dll  
@@ -53,14 +59,15 @@ This version downloads the live data from https://pilotweb.nas.faa.gov/common/na
 So it'll continue to work as long as the site keeps the same URL, and doesn't change the way data is presented too much. I've added error messages that should provide enough information to narrow down any problems that arise.
 
 ### Waypoints
-The way euroNAT gets the waypoint coordinates has changed from previous versions. The last version used a website that doesn't exist anymore - I want to move away from relying on websites as much as possible.
+The way euroNAT gets the waypoint coordinates has changed from previous versions. The last version used a website that doesn't exist anymore - I want to move away from relying on external content as much as possible.
 
-euroNAT will first check for the waypoint in waypoints.txt located in the same folder as the euroNAT.dll. This is a small lookup file that only contains the waypoints used in a North Atlantic Track. This means the plugin starts fast!
+euroNAT will first check for the waypoint in waypoints.txt located in the same folder as the euroNAT.dll file. This is a small lookup file that only contains the waypoints that have been previously used in a North Atlantic Track. This helps the plugin start fast.
 
-If the waypoint name is not found in waypoints.txt, it'll look for an ISEC.txt file in the same directory as the euroNAT.dll.  
-An old version of ISEC.txt can be found the Documents\EuroScope\DataFiles folder. Or in the FSNavigator AIRAC from Navigraph or Aerosoft.
+If the waypoint name is not found in waypoints.txt, it'll look for an ISEC.txt file in the same directory as the euroNAT.dll file.  
+An old version of ISEC.txt can be found the Documents\EuroScope\DataFiles folder.  
+Otherwise purchase the FSNavigator AIRAC from Navigraph or Aerosoft and extract it from there.
 
-If euroNAT finds the waypoint in the ISEC.txt file it'll also add it to waypoints.txt for the next time it starts.
+If euroNAT finds the waypoint in the ISEC.txt file it'll also add it to waypoints.txt for quick access next time.
 
 ## Screenshots
 
@@ -78,7 +85,5 @@ This screenshot shows the Options dialog for euroNAT, as well as the Concorde tr
 
 
 ## Authors
-v1.0 - 
-v1.2 - Nov 2014 - Merik Nanish
-
-
+Nov 2010 - Michael Freudeman  
+Nov 2014 - Merik Nanish  
