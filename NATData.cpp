@@ -32,9 +32,11 @@ NATData::~NATData(void) {
 }
 
 void NATData::Refresh(void) {
-	// Easier than HttpRequest Async
+
 	NATShow::Loading = true;
+
 	this->workerThread = AfxBeginThread(NATData::FetchDataWorker, &NATWorkerData);
+	
 }
 
 void NATData::SetPlugin(CPlugIn* plugin) {
@@ -45,8 +47,6 @@ UINT NATData::FetchDataWorker(LPVOID pvar) {
 	NATWorkerCont* dta = &NATData::NATWorkerData;
 
 	std::map <CString, NATWaypoint> wp_map;
-
-	NATShow::Loading = true;
 
 	// Load waypoints into map
 	try {
@@ -82,41 +82,44 @@ UINT NATData::FetchDataWorker(LPVOID pvar) {
 
 	} catch (...) {
 		euroNatPlugin->DisplayUserMessage("euroNAT", "Info", "Unable to open waypoints.txt", true, true, true, true, true);
-		return 0;
+		NATShow::Loading = false;
+		return -1;
 	}
 
-	
 	CWebGrab grab;
 	CString response;
-	//CStringArray items;
 	int NATcnt = 0;
 
 	if (!grab.GetFile(natURL, response)) {
-
 		CString errorMessage =  grab.GetErrorMessage();
 		euroNatPlugin->DisplayUserMessage("euroNAT", "Error", errorMessage, true, true, true, true, true);
 		CString message;
 		message.Format("Couldn't open %s", natURL);
 		euroNatPlugin->DisplayUserMessage("euroNAT", "Error", message, true, true, true, true, true);
-
+		NATShow::Loading = false;
 		return -1;
 	}
 
-	// CString to string for regex searching
-	string res((LPCTSTR) response);
+	// Check for 404
+	if (grab.GetRawHeaders().Find("404") >= 0) {
+		CString message;
+		message.Format("Received '404: Not Found' at %s.", natURL);
+		euroNatPlugin->DisplayUserMessage("euroNAT", "Info", message, true, true, true, true, true);
+		NATShow::Loading = false;
+		return -1;
+	}
+	grab.Close();
 
 	// Check for 'NO DATA IS ACTIVE'
 	if (response.Find("NO DATA IS ACTIVE") >= 0) {
-
 		CString message;
 		message.Format("No NAT Data is active, %s", natURL);
 		euroNatPlugin->DisplayUserMessage("euroNAT", "Info", message, true, true, true, true, true);
-
+		NATShow::Loading = false;
 		return -1;
 	}
 
-
-	// TMI Could be 1 or 3 numbers (day of the year)
+	// TMI Could be 1 or 3 digits (day of the year)
 	int tmi = -1;
 	int tmi_cursor = response.Find("TMI IS ");
 	if (tmi_cursor >= 0) {
@@ -129,7 +132,16 @@ UINT NATData::FetchDataWorker(LPVOID pvar) {
 			i++;
 		}
 		tmi = stoi(tmi_temp);
+	} else {
+		CString message;
+		message.Format("NAT Data not in expected format, %s", natURL);
+		euroNatPlugin->DisplayUserMessage("euroNAT", "Info", message, true, true, true, true, true);
+		NATShow::Loading = false;
+		return -1;
 	}
+
+	// CString to string for regex searching
+	string res((LPCTSTR) response);
 
 	// TODO: Optimise?
 	const regex track_regex("([a-zA-Z]\\s+)([a-zA-Z]{5}\\s+)*(\\d{2,}\\/\\d{2,}\\s+)*(\\d{2,}\\/\\d{2,})*([a-zA-Z]{5}\\s+)*([a-zA-Z]{5})*\\nEAST LVLS .+\\nWEST LVLS .+\\n");
@@ -311,7 +323,6 @@ UINT NATData::FetchDataWorker(LPVOID pvar) {
 	NATData::AddConcordTracks(dta);
 
 	NATShow::Loading = false;
-
 	return 0;
 }
 
