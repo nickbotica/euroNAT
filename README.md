@@ -33,7 +33,9 @@ To use the Options dialog, type .natoptions in the Message area (bottom of main 
 
 **.natshow west** will only show the westbound tracks (and hide the eastbound tracks)
 
-**.natshow all** will show both eastbound and westbound tracks
+**.natshow both** will show both eastbound and westbound tracks
+
+**.natshow all** will show eastbound, westbound and Concorde tracks
 
 **.natshow none** will hide all eastbound, westbound and Concorde tracks
 
