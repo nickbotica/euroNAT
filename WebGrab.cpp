@@ -66,7 +66,7 @@ BOOL CWebGrab::Initialise(LPCTSTR szAgentName /*=NULL*/, CWnd* pWnd /*=NULL*/)
 	if (m_useProxy)
 	{
 		char buf[10];
-		itoa(m_Port,buf,10);
+		_itoa_s(m_Port,buf,10);
 		CString temp = m_Proxy+":"+(CString)buf;
 		INTERNET_PROXY_INFO proxyinfo;
 		proxyinfo.dwAccessType = INTERNET_OPEN_TYPE_PROXY;
@@ -478,7 +478,7 @@ void CWebGrabSession::SetStatus(LPCTSTR fmt, ...)
     TCHAR buffer[512];
 
     va_start(args, fmt);
-    _vstprintf(buffer, fmt, args);
+    _vstprintf_s(buffer, fmt, args);
     va_end(args);
 
     TRACE1("CWebGrabSession::SetStatus: %s\n", buffer);

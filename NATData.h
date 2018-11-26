@@ -19,6 +19,7 @@ enum Direction{
 struct NATWaypoint {
 public:
 	CString Name;
+	CString ShortName;
 	CPosition Position;
 };
 
@@ -52,6 +53,8 @@ protected:
 
 	static UINT FetchDataWorker( LPVOID pvar );
 
+	static bool checkISEC(CString navaid, NATWaypoint * natwp);
+
 public:
 	NATData(void);
 	~NATData(void);
@@ -62,8 +65,8 @@ public:
 		return *NATWorkerData.m_pNatCount > 0;
 	}
 
-	void GetTrackPtrs( NAT * pNats, int * pCount );
-
 	void Refresh(void);
+
+	void SetPlugin(CPlugIn* euroNatPlugin);
 };
 
