@@ -130,7 +130,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="euroNAT.def" />
-    <None Include="res\euroNAT.rc2" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="euroNAT.cpp" />
