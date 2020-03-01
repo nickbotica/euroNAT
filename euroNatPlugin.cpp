@@ -6,8 +6,8 @@
 // TODO: Update version number for new releases (format x.x.x)
 const double this_version_number = 1.3;
 // INT_MAX if not in beta
-const unsigned int this_beta_version = 1;
-const char * version_string = "1.3b1";
+const unsigned int this_beta_version = 2;
+const char * version_string = "1.3b2";
 
 const CString pluginversion_url = "https://raw.githubusercontent.com/nickbotica/euroNAT/master/pluginversion.txt";
 
@@ -16,7 +16,7 @@ euroNatPlugin::euroNatPlugin(void) :
 		EuroScopePlugIn::COMPATIBILITY_CODE, 
 		"euroNAT",
 		version_string,
-		"Nick Botica (999991)",
+		"Nick Botica, Merik Nanish, Michael Freudeman",
 		"NYARTCC ES euroNAT"
 	)
 {
@@ -180,6 +180,4 @@ void euroNatPlugin::CheckVersion(void) {
 	}
 
 	grab.Close();
-
 }
-

@@ -12,7 +12,7 @@ NATData::NATWorkerCont NATData::NATWorkerData;
 NATData * NATData::LastInstance = NULL;
 CPlugIn* euroNatPlugin;
 
-CString natURL = "https://pilotweb.nas.faa.gov/common/nat.html";
+CString natURL = "https://www.notams.faa.gov/common/nat.html";
 
 NATData::NATData(void) {
 	this->m_nats = new NAT[MAXNATS];
