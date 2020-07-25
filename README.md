@@ -56,7 +56,7 @@ To use the Options dialog, type .natoptions in the Message area (bottom of main 
 ## How it works
 
 ### Live Data
-This version downloads the live data from https://pilotweb.nas.faa.gov/common/nat.html
+This version downloads the live data from https://notams.aim.faa.gov/nat.html
 
 So it'll continue to work as long as the site keeps the same URL, and doesn't change the way data is presented too much. I've added error messages that should provide enough information to narrow down any problems that arise.
 
