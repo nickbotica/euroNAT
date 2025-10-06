@@ -1,3 +1,5 @@
+# THIS IS NO LONGER MAINTAINED. Working version here: https://github.com/rffuret/euroNAT/releases 
+
 # euroNAT
 A plug-in for Euroscope that displays the live North Atlantic Tracks.
 
